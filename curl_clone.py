@@ -57,8 +57,6 @@ def get_html(input_address,requests):
     place=data.find("<") #beginning of the body part
 
     http_response_code = data[9:data.find("\n")]
-    
-    print(http_response_code)
 
     if ("200" in http_response_code):
         print(data[place:])
@@ -72,7 +70,6 @@ def get_html(input_address,requests):
         new_url = temp_url[:end_index]
         sys.stderr.write("Redirected to:"+new_url)
         requests=requests+1
-        print(new_url)
         get_html(new_url,requests+1)
             
     if "302" in http_response_code:
@@ -80,11 +77,8 @@ def get_html(input_address,requests):
         loc_index = data.find("Location:")
         temp_url = data[loc_index+10:]
         end_index = temp_url.find("\n")
-        print(end_index)
         new_url = temp_url[:end_index]
         sys.stderr.write("Redirected to:"+new_url)
-        print("temp:"+temp_url+'\n')
-        print("new"+new_url+'\n')
         get_html(new_url,requests+1)
 
 
