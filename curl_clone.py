@@ -42,7 +42,14 @@ website_name = "GET / HTTP/1.1\r\nHost:"+HOST+"\r\n\r\n"
 
 sock.send(website_name.encode('utf-8'))
 
-response = sock.recv(4096)
+response=sock.recv(4096)
+while True:
+    data=sock.recv(4096)
+    if not data:
+        break
+    else:
+        response = response.append(data)
+
 data = response.decode()  ## we have our response!
 http_response_code = data[9:data.find("\n")] 
 
