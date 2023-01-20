@@ -30,7 +30,10 @@ def get_html(input_address,requests):
         
     if(':' in input_address[7:]): #with a port number
         portP=(input_address[7:]).find(':')
-        PORT=input_address[portP+8:-1]
+        try:
+            PORT=input_address[portP+8:-1]
+        except:
+            break
         PORT=int(PORT)
         input_address=input_address[:portP+7]
 
