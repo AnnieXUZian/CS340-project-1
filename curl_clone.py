@@ -4,33 +4,53 @@ import collections
 import os
 
 #Use sys to get the http link passed in
-input_string = sys.arg[1]
+input_address = str(sys.argv[1])
+
+if("https://" in input_address):
+    sys.stderr.write("Cannot intake an https")
+    sys.exit(1)
+    
+
+HOST = input_address[7:]  #sys.argv[1]- gets us the address  str()- makes it a string [7:]- gets rid of http://
+PORT = 80
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-sock.connect((input_string, 80))
+sock.connect((HOST, PORT)) # connect to the host
 
-website_name = b"GET / HTTP/1.1\r\nHost:" + input_string +"\r\n\r\n"
 
-sock.send(website_name)
+website_name = "GET / HTTP/1.1\r\nHost:"+HOST+"\r\n\r\n"
+
+sock.send(website_name.encode('utf-8'))
 
 response = sock.recv(4096)
 
-
-
-print(response.decode())
-
-
-#3 servers, 1 client- establishing a python file first
+data = response.decode()
 
 
 
-# if "http://" not in input_string[0:6]:
-#         sys.stderr.write("not a valid website")
-#         return 1
+# start_index = data.find("<body>")
+# end_index = data.find("</body>")
 
-#     else:
-#         sys.stdout.write("something")
+# output_message = "Header:"+HOST+"\n"+data[start_index:end_index+7]
+# sys.stdout.write(output_message)
+
+
+# #if (start_index == -1):
+#     #error
+
+
+# if ("200 OK" in data): 
+#     sys.exit(0)
+# else:
+#     sys.exit(1)
+
+
+
+
+
+
+
 
 
 #There should be a way to use status codes to help with the sorting of html stuff
@@ -53,11 +73,11 @@ print(response.decode())
 #how to parse http link for client, if it is redirecting, define path
 #11th redirect is a 301- do we terminate?
 
-while http_client.response.is_redirect and num_redirects <= 10:
-Do work ()
-num_redirects += 1
-if num_redirects > 10:
-        print("Too many redirects", file=sys.stderr)
-        sys.exit(1)
+# while http_client.response.is_redirect and num_redirects <= 10:
+# Do work ()
+# num_redirects += 1
+# if num_redirects > 10:
+#         print("Too many redirects", file=sys.stderr)
+#         sys.exit(1)
 
 #send a request with socket
