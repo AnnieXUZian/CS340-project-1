@@ -10,13 +10,15 @@ if("https://" in input_address):
     sys.stderr.write("Cannot intake an https")
     sys.exit(1)
     
+if (input_address[-1]=="/"):
+    input_address = input_address[:-1]
 
 HOST = input_address[7:]  #sys.argv[1]- gets us the address  str()- makes it a string [7:]- gets rid of http://
 PORT = 80
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-sock.connect((HOST, PORT)) # connect to the host
+sock.connect_ex((HOST, PORT)) # connect to the host
 
 
 website_name = "GET / HTTP/1.1\r\nHost:"+HOST+"\r\n\r\n"
@@ -29,21 +31,21 @@ data = response.decode()
 
 
 
-# start_index = data.find("<body>")
-# end_index = data.find("</body>")
+start_index = data.find("<body>")
+end_index = data.find("</body>")
 
-# output_message = "Header:"+HOST+"\n"+data[start_index:end_index+7]
-# sys.stdout.write(output_message)
+output_message = "Header:"+HOST+"\n"+data[start_index:end_index+7]
+sys.stdout.write(output_message)
 
 
-# #if (start_index == -1):
+#if (start_index == -1):
 #     #error
 
 
-# if ("200 OK" in data): 
-#     sys.exit(0)
-# else:
-#     sys.exit(1)
+if ("200 OK" in data): 
+    sys.exit(0)
+else:
+    sys.exit(1)
 
 
 
