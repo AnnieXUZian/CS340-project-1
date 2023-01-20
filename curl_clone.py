@@ -3,6 +3,7 @@ import socket
 import collections
 import os
 
+PORT = 80
 
 def print_body(input_data):  #helper function to print only the body out
   start_index = input_data.find("<body>")
@@ -21,9 +22,15 @@ if("https://" in input_address):
     
 if (input_address[-1]=="/"):
     input_address = input_address[:-1]
+    
+if(':' in input_address[7:]): #with a port number
+    portP=(input_address[7:]).find(':')
+    PORT=input_address[portP+8:-1]
+    PORT=int(PORT)
+    input_address=input_address[:portP+7]
 
 HOST = input_address[7:]  #sys.argv[1]- gets us the address  str()- makes it a string [7:]- gets rid of http://
-PORT = 80
+
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -48,12 +55,21 @@ if ("301 Moved Permanently" in http_response_code):
     end_index = new_url.find("\n")
     new_url = new_url[:end_index]
 
+place=data.find("<")     
 
+contentP=data.find('Content-Type')
+if data[contentP+14:contentP+23] !='text/html':
+    sys.exit(1)
+
+print(response[place:])
+print(response)
 
 
 #if (start_index == -1):
 #     #error
-
+status=data[9:12]
+if int(status)>=400:
+    sys.exit(1)
 
 if ("200 OK" in data): 
     sys.exit(0)
