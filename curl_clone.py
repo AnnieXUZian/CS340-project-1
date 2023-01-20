@@ -3,6 +3,15 @@ import socket
 import collections
 import os
 
+
+def print_body(input_data):  #helper function to print only the body out
+  start_index = input_data.find("<body>")
+  end_index = input_data.find("</body>")
+
+  output_message = "Header:"+HOST+"\n"+input_data[start_index:end_index+7]
+  sys.stdout.write(output_message)
+
+
 #Use sys to get the http link passed in
 input_address = str(sys.argv[1])
 
@@ -21,21 +30,25 @@ sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sock.connect_ex((HOST, PORT)) # connect to the host
 
 
+
 website_name = "GET / HTTP/1.1\r\nHost:"+HOST+"\r\n\r\n"
 
 sock.send(website_name.encode('utf-8'))
 
 response = sock.recv(4096)
+data = response.decode()  ## we have our response!
+http_response_code = data[9:data.find("\n")] 
 
-data = response.decode()
+if ("200 OK" in http_response_code):
+    print_body(data)
+
+if ("301 Moved Permanently" in http_response_code):
+    loc_index = data.find("Location:")
+    new_url = data[loc_index+10:]
+    end_index = new_url.find("\n")
+    new_url = new_url[:end_index]
 
 
-
-start_index = data.find("<body>")
-end_index = data.find("</body>")
-
-output_message = "Header:"+HOST+"\n"+data[start_index:end_index+7]
-sys.stdout.write(output_message)
 
 
 #if (start_index == -1):
