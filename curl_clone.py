@@ -3,7 +3,7 @@ import socket
 import collections
 import os
 
-PORT = 80
+counter = 10
 
 def print_body(input_data):  #helper function to print only the body out
   start_index = input_data.find("<body>")
@@ -13,24 +13,20 @@ def print_body(input_data):  #helper function to print only the body out
   sys.stdout.write(output_message)
 
 
-#Use sys to get the http link passed in
-input_address = str(sys.argv[1])
+def check_https(address):    #helper function to check that it's not https
+    if("https://" in address):
+      sys.stderr.write("Cannot intake an https")
+      sys.exit(1)
 
-if("https://" in input_address):
-    sys.stderr.write("Cannot intake an https")
-    sys.exit(1)
-    
+#Use sys to get the http link passed in
+input_address = str(sys.argv[1])    
+check_https(input_address)
+
 if (input_address[-1]=="/"):
     input_address = input_address[:-1]
-    
-if(':' in input_address[7:]): #with a port number
-    portP=(input_address[7:]).find(':')
-    PORT=input_address[portP+8:-1]
-    PORT=int(PORT)
-    input_address=input_address[:portP+7]
 
 HOST = input_address[7:]  #sys.argv[1]- gets us the address  str()- makes it a string [7:]- gets rid of http://
-
+PORT = 80
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -42,41 +38,38 @@ website_name = "GET / HTTP/1.1\r\nHost:"+HOST+"\r\n\r\n"
 
 sock.send(website_name.encode('utf-8'))
 
-response=sock.recv(4096)
-while True:
-    data=sock.recv(4096)
-    if not data:
-        break
-    else:
-        response = response.append(data)
-
+response = sock.recv(4096)
 data = response.decode()  ## we have our response!
 http_response_code = data[9:data.find("\n")] 
 
-if ("200 OK" in http_response_code):
+if ("200" in http_response_code):
     print_body(data)
 
-if ("301 Moved Permanently" in http_response_code):
+while ("301" in http_response_code and counter > 0):
+    counter = counter - 1
     loc_index = data.find("Location:")
     new_url = data[loc_index+10:]
     end_index = new_url.find("\n")
     new_url = new_url[:end_index]
+    sys.stderr.write("redirected to "+new_url)
+    check_https(new_url)
 
-place=data.find("<")     
+while("302" in http_response_code and counter > 0):
+    counter = counter - 1
+    loc_index = data.find("Location:")
+    new_url = data[loc_index+10:]
+    end_index = new_url.find("\n")
+    new_url = new_url[:end_index]
+    print(new_url)
 
-contentP=data.find('Content-Type')
-if data[contentP+14:contentP+23] !='text/html':
-    sys.exit(1)
+    
 
-print(response[place:])
-print(response)
+
 
 
 #if (start_index == -1):
 #     #error
-status=data[9:12]
-if int(status)>=400:
-    sys.exit(1)
+
 
 if ("200 OK" in data): 
     sys.exit(0)
