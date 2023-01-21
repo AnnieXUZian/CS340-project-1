@@ -67,7 +67,10 @@ while True:
 
         if i==0:
             break
-
+            
+    if result==float('inf')
+        result="inf"
+            
     retu=json.dumps({"operation":"product","operands":values,"result":result},indent=4)
     
     conn.send(retu.encode('utf-8'))
