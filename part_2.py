@@ -21,13 +21,13 @@ while True:
     message=message[:eIndex]
 
     if (message[-4:-1]=='.htm' or message[-5:-1]=='.html'):
-        conn.send('403 Forbidden')
+        conn.send('403 Forbidden'.encode('utf-8'))
     else:
         try:
             fp=open(message,'r')
             conn.send(fp.read().encode('utf-8'))
         except:
-            conn.send('404 Not Foound')
+            conn.send('404 Not Foound'.encode('utf-8'))
     #print(fp.read())
     
     
