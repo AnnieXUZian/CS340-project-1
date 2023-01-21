@@ -20,7 +20,7 @@ while True:
     eIndex=message.find(" ")
     message=message[:eIndex]
 
-    if (message[-4:-1]=='.htm' or message[-5:-1]=='.html'):
+    if not (message[-4:-1]=='.htm' or message[-5:-1]=='.html'):
         conn.send('403 Forbidden'.encode('utf-8'))
     else:
         try:
