@@ -1,4 +1,3 @@
-#server
 import socket
 import sys
 import os
@@ -20,16 +19,21 @@ while True:
     message=message[:eIndex]
 
     
-    if not (message[-4:]=='.htm' or message[-5:]=='.html'):
-        conn.send('403 Forbidden'.encode('utf-8'))
+    
+    
+    try:
+        fp=open(message,'r')
+    except:
+        conn.send('HTTP/1.0 404 Not Found\r\n'.encode('utf-8'))
     else:
-        try:
-            fp=open(message,'r')
-        except:
-            conn.send('404 Not Found'.encode('utf-8'))
+        if not (message[-4:]=='.htm' or message[-5:]=='.html'):
+            conn.send('HTTP/1.0 403 Forbidden\r\n'.encode('utf-8'))
         else:
-            content=fp.read()
-            conn.send(content.encode('utf-8'))
+            contentH='HTTP/1.0 200 OK\r\n' + 'Content-Length: '+str(os.path.getsize("./"+message)) + \
+            '\r\nContent-Type:text/html; charset=UTF-8\r\n\r\n'
+            conn.send(contentH.encode())
+            contentB=fp.read()
+            conn.sendall(contentB.encode('utf-8'))
     
     
     conn.close()
