@@ -129,7 +129,7 @@ def try_recursion(web_name, counter):
     else:
         number = int(http_response_code [: http_response_code.find(" ")])
         if(number >= 400):
-            print_body(data)
+            print_body(body)
             print("response over 400", file = sys.stderr)
             sys.exit(3)
  
