@@ -6,9 +6,9 @@ import os
 
 def print_body(body_output):  #helper function to print only the body out
   body_output = body_output.decode(errors= 'ignore')
-  end_index = body_output.find("</body>")
+  #end_index = body_output.find("</body>")
 
-  output_message = body_output[:end_index]  #"Header:"+host_name+"\n"+
+  #output_message = body_output[:end_index]  #"Header:"+host_name+"\n"+
 
   sys.stdout.write(body_output + "\n")
 
