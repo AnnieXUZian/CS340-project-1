@@ -19,14 +19,13 @@ message_queues={}
 
 
 while True:
-    print('waiting for the next event',file=sys.stderr)
     readable,writable,exceptional=select.select(inputs,outputs,inputs)
 
     for s in readable:#handle inputs
         if s is server:#ready to accept a connection
             conn,addr=s.accept()
             #print(' connection from',addr,file=sys.stderr)
-            conn.setblocking(0)
+            ###conn.setblocking(0)
             inputs.append(conn)#add to list of inputs to monitor
             #give connection a queue for data
             message_queues[conn]=queue.Queue()
@@ -54,7 +53,7 @@ while True:
             outputs.remove(s)
         else:
             #print(' sending{!r} from{}'.format(data,s.getpeername()),file=sys.stderr)
-            message=next_msg.decode('utf-8')
+            message=next_msg.decode(errors= 'ignore')
             try:
                 sIndex=message.find("Get")
             except:
@@ -64,19 +63,20 @@ while True:
                 eIndex=message.find(" ")
                 message=message[:eIndex]
 
-                if (message[-4:-1]=='.htm' or message[-5:-1]=='.html'):
-                    
-                    s.send('HTTP/1.0 403 Forbidden\r\n'.encode('utf-8'))
-                else:
-                    try:
-                        fp=open(message,'r')
-                        contentH='HTTP/1.0 200 OK\r\n' + 'Content-Length: '+str(os.path.getsize("./"+message)) + \
-                        '\r\nContent-Type:text/html; charset=UTF-8\r\n\r\n'
-                        s.send(contentH.encode())
-                        contentB=fp.read()
-                        s.sendall(contentB.encode('utf-8'))
-                    except:
-                        s.send('HTTP/1.0 404 Not Found\r\n'.encode('utf-8'))
+                
+                try:
+                    fp=open(message,'r')
+                    print(message)
+                    if not (message[-4:-1]=='.htm' or message[-5:-1]=='.html'):
+                        s.send('HTTP/1.0 403 Forbidden\r\n'.encode('utf-8'))
+                        continue
+                    contentH='HTTP/1.0 200 OK\r\n' + 'Content-Length: '+str(os.path.getsize("./"+message)) + \
+                    '\r\nContent-Type:text/html; charset=UTF-8\r\n\r\n'
+                    s.send(contentH.encode())
+                    contentB=fp.read()
+                    s.sendall(contentB.encode('utf-8'))
+                except:
+                    s.send('HTTP/1.0 404 Not Found\r\n'.encode('utf-8'))
     for s in exceptional:
         #print('exception condition on',s.getpeername(),file=sys.stderr)
         inputs.remove(s)
