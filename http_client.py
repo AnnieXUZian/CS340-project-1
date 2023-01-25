@@ -10,7 +10,7 @@ def print_body(body_output):  #helper function to print only the body out
 
   output_message = body_output[:end_index]  #"Header:"+host_name+"\n"+
 
-  sys.stdout.write(output_message + "\n")
+  sys.stdout.write(body_output + "\n")
 
 
 def understand_address(address):    #helper function to check that it's not https
@@ -43,8 +43,6 @@ def understand_address(address):    #helper function to check that it's not http
 
 #Use sys to get the http link passed in
 input_address = str(sys.argv[1])    #gets us the address
-
-
 
 
 
@@ -94,6 +92,10 @@ def try_recursion(web_name, counter):
 
     http_response_code = data[9:data.find("\n")] 
 
+    content_type=data[data.find("Content-Type")+14:data.find("Content-Type")+23]
+    if not content_type=='text/html': #check content type
+        sys.exit(1)
+
     if ("200" in http_response_code):
         print_body(body)
         sys.exit(0)
@@ -129,8 +131,8 @@ def try_recursion(web_name, counter):
     else:
         number = int(http_response_code [: http_response_code.find(" ")])
         if(number >= 400):
-            print_body(body)
-            print("response over 400", file = sys.stderr)
+            print_body(data)
+            #print("response over 400", file = sys.stderr)
             sys.exit(3)
  
 
@@ -139,5 +141,8 @@ def try_recursion(web_name, counter):
 
 
 try_recursion(input_address, 10)
+
+
+
 
 
