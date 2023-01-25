@@ -67,7 +67,7 @@ while True:
                 try:
                     fp=open(message,'r')
                     print(message)
-                    if not (message[-4:-1]=='.htm' or message[-5:-1]=='.html'):
+                    if not (message[-4:]=='.htm' or message[-5:]=='.html'):
                         s.send('HTTP/1.0 403 Forbidden\r\n'.encode('utf-8'))
                         continue
                     contentH='HTTP/1.0 200 OK\r\n' + 'Content-Length: '+str(os.path.getsize("./"+message)) + \
