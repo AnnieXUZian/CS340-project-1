@@ -13,6 +13,7 @@ server.bind(ADDR)
 server.listen()
 
 
+
 while True:
     conn,addr=server.accept()
     
@@ -22,23 +23,27 @@ while True:
     message=message[sIndex+6:]
     eIndex=message.find(" ")
     message=message[:eIndex]
-
-    print(message)
-    
-    if (message[-4:-1]=='.htm' or message[-5:-1]=='.html'):
-        conn.send('400 Bad Request'.encode('utf-8'))
-        continue  
     
     mIndex=message.find('?')
-    operation=message[:mIndex]
+    if(mIndex==-1):
+        operation=message
+    else:
+        operation=message[:mIndex]
+        
     if operation !='product':
-        conn.send('404 Not Foound'.encode('utf-8'))
+        conn.send('HTTP/1.0 404 Not Found\r\n'.encode('utf-8'))
         continue
+    
+    if mIndex==(len(message)-1) or mIndex==-1:
+        conn.send('HTTP/1.0 400 Bad Request\r\n'.encode('utf-8'))
+        continue
+    
     message=message[mIndex+1:]
-    if message=='':
-       conn.send('400 Bad Request'.encode('utf-8')) 
+    
+
     result=1
     i=1
+    bre=0
     values=[]
     while True:
         
@@ -58,21 +63,28 @@ while True:
             value=temp[equal+1:]
             
         try:
-            value=float(value)
-        except:
-            conn.send('400 Bad Request'.encode('utf-8'))
+            float(value)
+        except ValueError:
+            conn.send('HTTP/1.0 400 Bad Request\r\n'.encode('utf-8'))
+            bre=1
+            break
         else:
+            value=float(value)
             values.append(value)
             result=result*value
 
         if i==0:
             break
-            
-    if result==float('inf')
+    if bre==1:
+        continue
+    if result==float('inf') or result==float('-inf'):
         result="inf"
-            
-    retu=json.dumps({"operation":"product","operands":values,"result":result},indent=4)
+    retu=json.dumps({"operation":"product","operands":values,"result":result},indent=2)
+
+    contentH='HTTP/1.0 200 OK\r\n' + 'Content-Length: '+str(sys.getsizeof(retu)) + \
+    '\r\nContent-Type:application/json; charset=UTF-8\r\n\r\n'
+    conn.send(contentH.encode())
     
-    conn.send(retu.encode('utf-8'))
+    conn.sendall(retu.encode('utf-8'))
     
     conn.close()
