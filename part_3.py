@@ -65,19 +65,25 @@ while True:
                 message=message[:eIndex]
 
                 if (message[-4:-1]=='.htm' or message[-5:-1]=='.html'):
-                    s.send('403 Forbidden'.encode('utf-8'))
+                    
+                    s.send('HTTP/1.0 403 Forbidden\r\n'.encode('utf-8'))
                 else:
                     try:
                         fp=open(message,'r')
-                        s.send(fp.read().encode('utf-8'))
+                        contentH='HTTP/1.0 200 OK\r\n' + 'Content-Length: '+str(os.path.getsize("./"+message)) + \
+                        '\r\nContent-Type:text/html; charset=UTF-8\r\n\r\n'
+                        s.send(contentH.encode())
+                        contentB=fp.read()
+                        s.sendall(contentB.encode('utf-8'))
                     except:
-                        s.send('404 Not Found'.encode('utf-8'))
+                        s.send('HTTP/1.0 404 Not Found\r\n'.encode('utf-8'))
     for s in exceptional:
         #print('exception condition on',s.getpeername(),file=sys.stderr)
         inputs.remove(s)
         if s in outputs:
             outputs.remove(s)
         s.close()
+
 
                 
     
