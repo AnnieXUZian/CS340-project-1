@@ -10,6 +10,7 @@ SERVER=socket.gethostbyname(socket.gethostname())
 ADDR=("",PORT)
 
 server=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+server.setblocking(0)
 server.bind(ADDR)
 server.listen(5)
 
@@ -25,7 +26,7 @@ while True:
         if s is server:#ready to accept a connection
             conn,addr=s.accept()
             #print(' connection from',addr,file=sys.stderr)
-            ###conn.setblocking(0)
+            conn.setblocking(0)
             inputs.append(conn)#add to list of inputs to monitor
             #give connection a queue for data
             message_queues[conn]=queue.Queue()
@@ -66,9 +67,12 @@ while True:
                 
                 try:
                     fp=open(message,'r')
-                    print(message)
                     if not (message[-4:]=='.htm' or message[-5:]=='.html'):
                         s.send('HTTP/1.0 403 Forbidden\r\n'.encode('utf-8'))
+                        inputs.remove(s)
+                        if s in outputs:
+                            outputs.remove(s)
+                        s.close()
                         continue
                     contentH='HTTP/1.0 200 OK\r\n' + 'Content-Length: '+str(os.path.getsize("./"+message)) + \
                     '\r\nContent-Type:text/html; charset=UTF-8\r\n\r\n'
@@ -76,15 +80,18 @@ while True:
                     contentB=fp.read()
                     s.sendall(contentB.encode('utf-8'))
                 except:
-                    s.send('HTTP/1.0 404 Not Found\r\n'.encode('utf-8'))
+                    s.sendall('HTTP/1.0 404 Not Found\r\n'.encode('utf-8'))
+                    inputs.remove(s)
+                    if s in outputs:
+                        outputs.remove(s)
+                    s.close()
+                    
     for s in exceptional:
+        print("exceptional")
         #print('exception condition on',s.getpeername(),file=sys.stderr)
         inputs.remove(s)
         if s in outputs:
             outputs.remove(s)
-        s.close()
-
-
-                
+        s.close()   
     
 
