@@ -17,7 +17,7 @@ server.listen()
 while True:
     conn,addr=server.accept()
     
-    message=conn.recv(1024).decode('utf-8')
+    message=conn.recv(4096).decode('utf-8')
     sIndex=message.find("Get")
     
     message=message[sIndex+6:]
